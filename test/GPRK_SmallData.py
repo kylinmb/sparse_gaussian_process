@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 from models.GPR_ARD_Kyli import GPRK
 import numpy as np
 from scipy.io import loadmat
-from sklearn.decomposition import PCA
 
 data = loadmat('../data/pol.mat')
 x = data['x']

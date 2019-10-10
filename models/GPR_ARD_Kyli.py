@@ -18,7 +18,7 @@ class GPRK:
         self.tf_Xt = tf.compat.v1.placeholder(tf.float32, shape=[None, self.d]) # Is this the test data?
         # model parameters
         self.tf_log_length_scale = tf.Variable(0.0, dtype=tf.float32)
-        self.tf_log_amp = tf.constant(0.0, dtype=tf.float32)
+        self.tf_log_amp = tf.Variable(0.0, dtype=tf.float32) # TODO should this be constant or varaible
         self.tf_log_tau = tf.Variable(0.0, dtype=tf.float32)
         self.loss = self.neg_log_likelihood()
         self.optimizer = tf.contrib.opt.ScipyOptimizerInterface(self.loss,
