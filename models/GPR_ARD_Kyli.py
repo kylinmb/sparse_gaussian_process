@@ -5,7 +5,7 @@ import numpy as np
 np.random.seed(1234)
 tf.compat.v1.set_random_seed(1234)
 
-noise = 1e-3
+jitter = 1e-3
 
 
 class GPRK:
@@ -33,7 +33,7 @@ class GPRK:
 
     def kernel_matrix(self):
         col_norm2 = tf.reduce_sum(self.tf_X * self.tf_X, 1)
-        col_norm2 = tf.reshape(col_norm2, [-1, 1])  # TODO why the reshape?
+        col_norm2 = tf.reshape(col_norm2, [-1, 1])
         k = col_norm2 - 2.0 * tf.matmul(self.tf_X, tf.transpose(self.tf_X)) + tf.transpose(col_norm2)
         k = tf.exp(self.tf_log_amp) * tf.exp(-1.0/tf.exp(self.tf_log_length_scale) * k)
         return k
@@ -53,7 +53,7 @@ class GPRK:
         s = self.kernel_matrix() + 1.0 / tf.exp(self.tf_log_tau) * tf.eye(self.N)
         kmn = self.kernel_cross()
         predicted_mean = tf.matmul(kmn, tf.linalg.solve(s, self.tf_y))
-        predicted_variance = tf.exp(self.tf_log_amp) + noise - tf.reduce_sum(kmn * tf.transpose(tf.linalg.solve(s, tf.transpose(kmn))), 1)
+        predicted_variance = tf.exp(self.tf_log_amp) + jitter - tf.reduce_sum(kmn * tf.transpose(tf.linalg.solve(s, tf.transpose(kmn))), 1)
         return predicted_mean, predicted_variance
 
     def eval(self, xStar):

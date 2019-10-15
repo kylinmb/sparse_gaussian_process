@@ -19,18 +19,27 @@ y_test = y[n_tr:n_tr + n_test, :]
 
 model = FITC(x_train, y_train)
 model.train()
-# y_predicted = model.eval(x_test)
-# y_mean = y_predicted[0]
-# error = np.linalg.norm(y_mean - y_test, 2)/np.linalg.norm(y_test, 2)
-# print('Error: %e' % error)
+
+
+k = model.get_kernel_matrix()
+u, s, v = np.linalg.svd(k)
+
+x_axis = np.arange(1, k.shape[0]+1)
+plt.plot(x_axis, s, 'r-')
+plt.xlim(0, 40)
+plt.title('Sparse GP')
+plt.xlabel('Dimension')
+plt.ylabel('Singular Value')
+plt.show()
+
+# # Training Error and Test Error
+# y_predicted_train = model.eval(x_train)
+# y_mean_train = y_predicted_train[0]
+# error_train = np.linalg.norm(y_mean_train - y_train, 2) / np.linalg.norm(y_train, 2)
+# print('Train Error: %e' % error_train)
 #
-# k = model.get_kernel_matrix()
-# u, s, v = np.linalg.svd(k)
-#
-# xaxis = np.arange(1, k.shape[0]+1)
-# n, bins, patches = plt.hist(s, xaxis, density=True, facecolor='r', alpha=0.75)
-# plt.xlim(0, 80)
-# plt.title('Full GP')
-# plt.xlabel('Dimension')
-# plt.ylabel('Singular Value')
-# plt.show()
+# y_predicted_test = model.eval(x_test)
+# y_mean_test = y_predicted_test[0]
+# error_test = np.linalg.norm(y_mean_test - y_test, 2) / np.linalg.norm(y_test, 2)
+# print('Test Error: %e' % error_test)
+

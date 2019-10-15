@@ -5,7 +5,7 @@ import numpy as np
 np.random.seed(1234)
 tf.compat.v1.set_random_seed(1234)
 
-noise = 1e-3
+jitter = 1e-3
 
 
 class FITC:
@@ -18,7 +18,7 @@ class FITC:
         self.tf_y = tf.compat.v1.placeholder(tf.float32, shape=[None, 1])
         self.tf_Xt = tf.compat.v1.placeholder(tf.float32, shape=[None, self.d])
         # model parameters
-        self.tf_Xbar = tf.Variable(tf.ones([50, self.d]), dtype=tf.float32)  #TODO what is the right number for M
+        self.tf_Xbar = tf.Variable(tf.random.uniform([40, self.d]), dtype=tf.float32)  #TODO what is the right number for n
         self.tf_log_length_scale = tf.Variable(0.0, dtype=tf.float32)
         self.tf_log_amp = tf.constant(0.0, dtype=tf.float32)
         self.tf_log_tau = tf.Variable(0.0, dtype=tf.float32)
@@ -38,8 +38,14 @@ class FITC:
         col_norm2 = tf.reduce_sum(self.tf_Xbar * self.tf_Xbar, 1)
         col_norm2 = tf.reshape(col_norm2, [-1, 1])
         k = col_norm2 - 2.0 * tf.matmul(self.tf_Xbar, tf.transpose(self.tf_Xbar)) + tf.transpose(col_norm2)
+        # rows, columns = k.shape
+        # k = jitter * np.eye(rows, columns)
         k = tf.exp(self.tf_log_amp) * tf.exp(-1.0/tf.exp(self.tf_log_length_scale) * k)
         return k
+
+    def get_kernel_matrix(self):
+        k = self.kernel_matrix_M()
+        return self.sess.run(k, {self.tf_X: self.X, self.tf_y: self.y})
 
     def kernel_matrix_MN(self):
         col_norm_bar = tf.reduce_sum(self.tf_Xbar * self.tf_Xbar, 1)
@@ -56,6 +62,41 @@ class FITC:
         l = 1 - l
         l = tf.matrix_diag(l)
         return l
+
+    def kernel_cross(self):
+        col_norm1 = tf.reshape(tf.reduce_sum(self.tf_Xt * self.tf_Xt, 1), [-1, 1])
+        col_norm2 = tf.reshape(tf.reduce_sum(self.tf_Xbar * self.tf_Xbar, 1), [-1, 1])
+        k = col_norm1 - 2.0 * tf.matmul(self.tf_Xt, tf.transpose(self.tf_Xbar)) + tf.transpose(col_norm2)
+        k = tf.exp(self.tf_log_amp) * tf.exp(-1.0 / tf.exp(self.tf_log_length_scale) * k)
+        return k
+
+    def kernel_cross_star(self):
+        col_norm2 = tf.reduce_sum(self.tf_Xt * self.tf_Xt, 1)
+        col_norm2 = tf.reshape(col_norm2, [-1, 1])
+        k = col_norm2 - 2.0 * tf.matmul(self.tf_Xt, tf.transpose(self.tf_Xt)) + tf.transpose(col_norm2)
+        # rows, columns = k.shape
+        # k = jitter * np.eye(rows, columns)
+        k = tf.exp(self.tf_log_amp) * tf.exp(-1.0/tf.exp(self.tf_log_length_scale) * k)
+        return k
+
+    def predict(self):
+        KM = self.kernel_matrix_M()
+        KMN = self.kernel_matrix_MN()
+        sigma2 = 1.0 / tf.exp(self.tf_log_tau) * tf.eye(self.N)
+        lam = tf.matrix_inverse(self.bigLambda(KM, KMN) + sigma2)
+        Q = KM + tf.matmul(tf.matmul(KMN, lam), tf.transpose(KMN))
+        Q = tf.matrix_inverse(Q)
+        kstarm = self.kernel_cross()
+        predicted_mean = tf.matmul(tf.matmul(tf.transpose(kstarm), Q), KMN)
+        predicted_mean = tf.matmul(predicted_mean, lam)
+        predicted_mean = tf.matmul(predicted_mean, self.tf_y)
+        predicted_variance = tf.matmul(tf.matmul(tf.transpose(kstarm), tf.matrix_inverse(KM) - Q), kstarm)
+        predicted_variance = self.kernel_cross_star() - predicted_variance + 1.0 / tf.exp(self.tf_log_tau)
+        return predicted_mean, predicted_variance
+
+    def eval(self, xStar):
+        predicted_mean, predicted_variance = self.predict()
+        return self.sess.run([predicted_mean, predicted_variance], {self.tf_Xt: xStar, self.tf_X: self.X, self.tf_y: self.y})
 
     def neg_log_likelihood(self):
         Kmn = self.kernel_matrix_MN()
