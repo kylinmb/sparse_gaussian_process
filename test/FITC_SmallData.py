@@ -33,13 +33,13 @@ plt.ylabel('Singular Value')
 plt.show()
 
 # # Training Error and Test Error
-# y_predicted_train = model.eval(x_train)
-# y_mean_train = y_predicted_train[0]
-# error_train = np.linalg.norm(y_mean_train - y_train, 2) / np.linalg.norm(y_train, 2)
-# print('Train Error: %e' % error_train)
-#
-# y_predicted_test = model.eval(x_test)
-# y_mean_test = y_predicted_test[0]
-# error_test = np.linalg.norm(y_mean_test - y_test, 2) / np.linalg.norm(y_test, 2)
-# print('Test Error: %e' % error_test)
+y_predicted_train = model.eval(x_train)
+y_mean_train = y_predicted_train[0]
+error_train = np.linalg.norm(y_mean_train - y_train, 2) / np.linalg.norm(y_train, 2)
+print('Train Error: %e' % error_train)
+
+y_predicted_test = model.eval(x_test)
+y_mean_test = y_predicted_test[0]
+error_test = np.linalg.norm(y_mean_test - y_test, 2) / np.linalg.norm(y_test, 2)
+print('Test Error: %e' % error_test)
 

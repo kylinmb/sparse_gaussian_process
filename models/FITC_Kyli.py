@@ -38,8 +38,6 @@ class FITC:
         col_norm2 = tf.reduce_sum(self.tf_Xbar * self.tf_Xbar, 1)
         col_norm2 = tf.reshape(col_norm2, [-1, 1])
         k = col_norm2 - 2.0 * tf.matmul(self.tf_Xbar, tf.transpose(self.tf_Xbar)) + tf.transpose(col_norm2)
-        # rows, columns = k.shape
-        # k = jitter * np.eye(rows, columns)
         k = tf.exp(self.tf_log_amp) * tf.exp(-1.0/tf.exp(self.tf_log_length_scale) * k)
         return k
 
@@ -67,15 +65,13 @@ class FITC:
         col_norm1 = tf.reshape(tf.reduce_sum(self.tf_Xt * self.tf_Xt, 1), [-1, 1])
         col_norm2 = tf.reshape(tf.reduce_sum(self.tf_Xbar * self.tf_Xbar, 1), [-1, 1])
         k = col_norm1 - 2.0 * tf.matmul(self.tf_Xt, tf.transpose(self.tf_Xbar)) + tf.transpose(col_norm2)
-        k = tf.exp(self.tf_log_amp) * tf.exp(-1.0 / tf.exp(self.tf_log_length_scale) * k)
+        k = tf.exp(self.tf_log_amp) * tf.exp(-1.0/tf.exp(self.tf_log_length_scale) * k)
         return k
 
     def kernel_cross_star(self):
         col_norm2 = tf.reduce_sum(self.tf_Xt * self.tf_Xt, 1)
         col_norm2 = tf.reshape(col_norm2, [-1, 1])
         k = col_norm2 - 2.0 * tf.matmul(self.tf_Xt, tf.transpose(self.tf_Xt)) + tf.transpose(col_norm2)
-        # rows, columns = k.shape
-        # k = jitter * np.eye(rows, columns)
         k = tf.exp(self.tf_log_amp) * tf.exp(-1.0/tf.exp(self.tf_log_length_scale) * k)
         return k
 
@@ -87,10 +83,10 @@ class FITC:
         Q = KM + tf.matmul(tf.matmul(KMN, lam), tf.transpose(KMN))
         Q = tf.matrix_inverse(Q)
         kstarm = self.kernel_cross()
-        predicted_mean = tf.matmul(tf.matmul(tf.transpose(kstarm), Q), KMN)
+        predicted_mean = tf.matmul(tf.matmul(kstarm, Q), KMN)
         predicted_mean = tf.matmul(predicted_mean, lam)
         predicted_mean = tf.matmul(predicted_mean, self.tf_y)
-        predicted_variance = tf.matmul(tf.matmul(tf.transpose(kstarm), tf.matrix_inverse(KM) - Q), kstarm)
+        predicted_variance = tf.matmul(tf.matmul(kstarm, tf.matrix_inverse(KM) - Q), tf.transpose(kstarm))
         predicted_variance = self.kernel_cross_star() - predicted_variance + 1.0 / tf.exp(self.tf_log_tau)
         return predicted_mean, predicted_variance
 
@@ -99,6 +95,7 @@ class FITC:
         return self.sess.run([predicted_mean, predicted_variance], {self.tf_Xt: xStar, self.tf_X: self.X, self.tf_y: self.y})
 
     def neg_log_likelihood(self):
+        print(self.tf_Xbar.shape)
         Kmn = self.kernel_matrix_MN()
         Km = self.kernel_matrix_M()
         kernels = tf.matmul(tf.transpose(Kmn), tf.linalg.solve(Km, Kmn))
