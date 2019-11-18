@@ -39,7 +39,7 @@ u, s, v = np.linalg.svd(covariance)
 
 x_axis = np.arange(1, covariance.shape[0] + 1)
 plt.plot(x_axis, s, '-r')
-plt.title('Spectrum for Full GP')
+plt.title('Spectrum for Sparse GP')
 plt.xlabel('Dimension')
 plt.ylabel('Singular Value')
 plt.show()
