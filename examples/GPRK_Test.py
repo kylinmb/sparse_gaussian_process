@@ -20,7 +20,7 @@ def test_gpr():
     x_tr = x[1:n_tr, :]
     y_tr = y[1:n_tr, :]
 
-    # test data
+    # examples data
     x_test = x[n_tr:, :]
     y_test = y[n_tr:, :]
 

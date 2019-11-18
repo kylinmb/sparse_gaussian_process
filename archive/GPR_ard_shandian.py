@@ -2,7 +2,7 @@
 @author: Shandian Zhe
 """
 
-#test ode data grom Wei
+#examples ode data grom Wei
 
 import sys
 sys.path.insert(0, '../../Utilities/')
@@ -25,7 +25,7 @@ class GPR:
     #self.tf_log_tau: log of inverse variance
     #self.tf_X: training input
     #self.tf_y: training output
-    #self.tf_Xt: test input
+    #self.tf_Xt: examples input
 
 #d is input dim.
     def __init__(self, X, y):
@@ -102,7 +102,7 @@ class GPR:
 
 
 
-#sample training & test
+#sample training & examples
 def sample_data():
     n_total = 200
     f = lambda x: np.sin(x)

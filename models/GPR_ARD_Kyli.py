@@ -15,7 +15,7 @@ class GPRK:
         self.N, self.d = X.shape
         self.tf_X = tf.compat.v1.placeholder(tf.float32, shape=[None, self.d])  # None = first dim can be any size
         self.tf_y = tf.compat.v1.placeholder(tf.float32, shape=[None, 1])
-        self.tf_Xt = tf.compat.v1.placeholder(tf.float32, shape=[None, self.d]) # Is this the test data?
+        self.tf_Xt = tf.compat.v1.placeholder(tf.float32, shape=[None, self.d]) # xStar
         # model parameters
         self.tf_log_length_scale = tf.Variable(0.0, dtype=tf.float32)
         self.tf_log_amp = tf.Variable(0.0, dtype=tf.float32) # TODO should this be constant or varaible
