@@ -1,5 +1,5 @@
 import numpy as np
-from models.GPR_ARD_Kyli import GPRK
+from models.FullGP_ARDParams import FullGPARD
 
 
 def function(input_val):
@@ -24,7 +24,7 @@ def test_gpr():
     x_test = x[n_tr:, :]
     y_test = y[n_tr:, :]
 
-    model = GPRK(x_tr, y_tr)
+    model = FullGPARD(x_tr, y_tr)
     model.train()
     y_predicted = model.eval(x_test)
     y_mean = y_predicted[0]

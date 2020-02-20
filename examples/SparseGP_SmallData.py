@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from models.GPR_ARD_Kyli import GPRK
+from models.SparseGP_ARDParams import SparseGPARD
 import numpy as np
 from scipy.io import loadmat
 
@@ -17,26 +17,28 @@ n_test = 100
 x_test = x[n_tr:n_tr + n_test, :]
 y_test = y[n_tr:n_tr + n_test, :]
 
-model = GPRK(x_train, y_train)
+model = SparseGPARD(x_train, y_train, 150)
 model.train()
+
 # Training Error and Test Error
-y_predicted_train = model.eval(x_train)
+y_predicted_train = model.predict(x_train)
 y_mean_train = y_predicted_train[0]
 error_train = np.linalg.norm(y_mean_train - y_train, 2) / np.linalg.norm(y_train, 2)
 print('Train Error: %e' % error_train)
 
-y_predicted_test = model.eval(x_test)
+y_predicted_test = model.predict(x_test)
 y_mean_test = y_predicted_test[0]
 error_test = np.linalg.norm(y_mean_test - y_test, 2) / np.linalg.norm(y_test, 2)
 print('Test Error: %e' % error_test)
 
-k = model.get_kernel_matrix()
+k = model.get_full_kernel_matrix()
 u, s, v = np.linalg.svd(k)
 
 x_axis = np.arange(1, k.shape[0] + 1)
 plt.plot(x_axis, s, 'r-')
-plt.xlim(0, 80)
-plt.title('Full GP')
+# plt.xlim(0, 80)
+plt.title('Sparse (FITC) GP')
 plt.xlabel('Dimension')
 plt.ylabel('Singular Value')
 plt.show()
+

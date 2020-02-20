@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pyGPs
 
-demoData = np.load('../data/regression_data.npz')
+demoData = np.load('../../data/regression_data.npz')
 x = demoData['x']
 y = demoData['y']
 z = demoData['xstar']

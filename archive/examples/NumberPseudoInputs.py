@@ -5,7 +5,7 @@ from scipy.io import loadmat
 
 np.random.seed(101)
 
-data = loadmat('../data/pol.mat')
+data = loadmat('../../data/pol.mat')
 x = data['x']
 y = data['y']
 
