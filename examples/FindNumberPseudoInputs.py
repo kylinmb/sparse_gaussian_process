@@ -21,7 +21,7 @@ y_test = y[n_tr:n_tr + n_test, :]
 
 # try different number of pseudo inputs
 df = pd.DataFrame(columns=['Number Pseudo Inputs', 'Training Error', 'Test Error'])
-for i in range(200, 401, 5):
+for i in range(300, 401, 5):
     try:
         print('Number of Pseudo Inputs: %i' % i)
         model = SparseGPARD(x_train, y_train, i)

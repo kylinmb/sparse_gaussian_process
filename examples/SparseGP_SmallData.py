@@ -17,7 +17,7 @@ n_test = 100
 x_test = x[n_tr:n_tr + n_test, :]
 y_test = y[n_tr:n_tr + n_test, :]
 
-model = SparseGPARD(x_train, y_train, 150)
+model = SparseGPARD(x_train, y_train, 300)
 model.train()
 
 # Training Error and Test Error
